@@ -19,11 +19,12 @@ import search
 
 
 DO_TESTING = True
-
+PARTIAL_GOAL = True
+goal_state = None
 
 BLANK = 'X'
 
-initial_state = (('A', 'B', 'B', 'C'),
+initial_state = (('A', 'B', 'B', 'C'),              ### baseline state used as start for all searches
                  ('A', 'B', 'B', 'C'),
                  ('D', 'E', 'E', 'F'),
                  ('D', 'G', 'H', 'F'),
@@ -34,6 +35,48 @@ goal_state =    (('X', 'X', 'X', 'X'),
                  ('X', 'X', 'X', 'X'),
                  ('X', 'B', 'B', 'X'),
                  ('X', 'B', 'B', 'X'))
+
+bid_goal_state = (('A', 'F', 'D', 'C'),             ### GOAL STATE USED AS OPPOSITE START IN THE BID SEARCH
+                  ('A', 'F', 'D', 'C'),
+                  ('E', 'E', 'H', 'G'),
+                  ('J', 'B', 'B', 'X'),
+                  ('I', 'B', 'B', 'X'))
+
+step_6_state =  (('A', 'B', 'B', 'C'),
+                 ('A', 'B', 'B', 'C'),
+                 ('E', 'E', 'X', 'F'),
+                 ('D', 'I', 'H', 'F'),
+                 ('D', 'X', 'G', 'J'))
+
+step_24_state = (('A', 'B', 'B', 'C'),
+                 ('A', 'B', 'B', 'C'),
+                 ('X', 'D', 'F', 'I'),
+                 ('X', 'D', 'F', 'G'),
+                 ('J', 'H', 'E', 'E'))
+
+step_30_state = (('B', 'B', 'C', 'I'),
+                 ('B', 'B', 'C', 'G'),
+                 ('A', 'D', 'F', 'X'),
+                 ('A', 'D', 'F', 'X'),
+                 ('J', 'H', 'E', 'E'))
+
+step_41_state = (('A', 'X', 'X', 'I'),
+                 ('A', 'B', 'B', 'G'),
+                 ('D', 'B', 'B', 'H'),
+                 ('D', 'J', 'C', 'F'),
+                 ('E', 'E', 'C', 'F'))
+
+step_59_state = (('A', 'X', 'X', 'I'),              ###### FIX THESE ######
+                 ('A', 'B', 'B', 'G'),              ###### FIX THESE ######
+                 ('D', 'B', 'B', 'H'),
+                 ('D', 'J', 'C', 'F'),
+                 ('E', 'E', 'C', 'F'))
+
+step_81_state =  (('A', 'F', 'D', 'C'),             
+                  ('A', 'F', 'D', 'C'),
+                  ('E', 'E', 'H', 'G'),
+                  ('J', 'B', 'B', 'X'),
+                  ('I', 'B', 'B', 'X'))
 
 no_state =      (('X', 'X', 'X', 'X'),
                  ('X', 'X', 'X', 'X'),
@@ -274,11 +317,17 @@ class HuarongPass(search.Problem):
 
         return self.immutable_state(mut_state)
 
+
+
     def goal_test(self, state):
         """Return True if the state is a goal. In this case, the 2x2 'B' tile 
         must be centered at the bottom of the grid. This method checks for 
         that condition."""
-        return state[3][1] == 'B' and state[3][2] == 'B' and state[4][1] == 'B' and state[4][2] == 'B'
+        if PARTIAL_GOAL:
+            return self.states_equal(goal_state, state)
+        else:
+            return state[3][1] == 'B' and state[3][2] == 'B' and state[4][1] == 'B' and state[4][2] == 'B'
+        
 
 
     # returns True if the given action is impossible for the given state
@@ -501,6 +550,27 @@ class HuarongPass(search.Problem):
 
         return touches
 
+    # Given a starting state and sequence of actions in a list, return the final state
+    def state_given(self, start_state, action_sequence):
+        new_state = start_state
+        for action in action_sequence:
+            new_state = self.result(new_state, action)
+
+        return new_state
+
+    # Given 2 states determine if they're equal
+    def states_equal(self, state1, state2):
+        equal = True
+
+        if (set(self.tiles(state1)) != set(self.tiles(state2))):              # test tilesets first, then test the rest if they're equal
+            equal = False
+        else:
+            for tile in self.tiles(state1):
+                if ( self.get_coords(state1, tile) != self.get_coords(state2, tile)):
+                    equal = False
+
+        return equal 
+
 #######################################
 
 ####### UTILITY FUNCTIONS #############
@@ -555,7 +625,6 @@ def huarong_pass_search(search_type):
 
 #######################################
 
-hp = HuarongPass(initial_state)
 
 
 ######### TEST FUNCTIONS ##############
@@ -584,6 +653,10 @@ def test_moves(tile):
 
     state = hp.result(state, (tile, 'DOWN'))
     audit_state(state)
+
+######### SETUP #######################
+
+
 
 ######### TESTING #####################
 
@@ -620,20 +693,23 @@ if DO_TESTING:
 
     print ''
 
-    assert hp.goal_test(goal_state) == True
-    assert hp.goal_test(no_state) == False
-    assert hp.goal_test(bogus_state) == False
+    # assert hp.goal_test(goal_state) == True
 
-    assert huarong_pass_search('x') == []
-    assert huarong_pass_search(' ')  == []
-    assert huarong_pass_search('')  == []
+    # assert hp.goal_test(no_state) == False
+    # assert hp.goal_test(bogus_state) == False
+    # assert hp.states_equal(initial_state, initial_state) == True
+    # assert hp.states_equal(no_state, initial_state) == False
+
+    # assert huarong_pass_search('x') == []
+    # assert huarong_pass_search(' ')  == []
+    # assert huarong_pass_search('')  == []
 
 
     # dfs_actions = huarong_pass_search('DFS')
     # print dfs_actions
 
-    bfs_actions = huarong_pass_search('BFS')
-    print bfs_actions
+    # bfs_actions = huarong_pass_search('BFS')
+    # print bfs_actions
     
     # ids_actions = huarong_pass_search('IDS')
     # print ids_actions
@@ -641,62 +717,42 @@ if DO_TESTING:
     # bid_actions = huarong_pass_search('BID')
     # print bid_actions
 
+    hp_0 = HuarongPass(initial_state)
+    hp_24 = HuarongPass(step_24_state)
+    hp_30 = HuarongPass(step_30_state)
+    hp_41 = HuarongPass(step_41_state)
+    hp_59 = HuarongPass(step_59_state)
+    hp_81 = HuarongPass(step_81_state)
+
+    goal_state = step_24_state
+    # acts_0_24 = search.breadth_first_search(hp_0).solution()
+
+    # goal_state = step_30_state
+    # acts_24_30 = search.breadth_first_search(hp_24).solution()
+
+    # goal_state = step_41_state
+    # acts_30_41 = search.breadth_first_search(hp_30).solution()
+
+    # goal_state = step_59_state
+    # acts_41_59 = search.breadth_first_search(hp_41).solution()
+
+    # goal_state = step_81_state
+    # acts_59_81 = search.breadth_first_search(hp_59).solution()
+
+    # print acts_0_24
+    # print acts_24_30
+    # print acts_30_41
+    # print acts_41_59
+    # print acts_59_81
+
+
+    print search.iterative_deepening_search(hp_0).solution()
+
+
+
+    # print sum([acts_0_24, acts_24_30, acts_30_41], [])
 
     print ''
     print "All tests passed!"
     print ''
 
-
-    # for tile in hp.tiles(initial_state):
-    #     test_moves(tile)
-
-
-    # state = initial_state
-
-    # act1 = hp.actions(state)
-
-    # for act in act1:
-    #     print_state(hp.result(state, act))
-    #     print hp.actions(hp.result(state, act))
-    #     print ''
-
-    # print hp.initial
-
-    # states = [initial_state, bogus_state, no_state, testing_state, testing_state0, testing_state1]
-    
-    # for state in states:
-    #     audit_state(state)
-
-    
-    # print_state(initial_state)
-    # print_state(hp.result(initial_state, ('G', 'DOWN')))
-    # print_state(hp.result(hp.result(initial_state, ('G', 'DOWN')), ('G', 'RIGHT')))
-    # print_state(hp.result(hp.result(hp.result(initial_state, ('G', 'DOWN')), ('G', 'RIGHT')), ('H', 'LEFT')))
-    # print_state(hp.result(hp.result(hp.result(hp.result(initial_state, ('G', 'DOWN')), ('G', 'RIGHT')), ('H', 'LEFT')), ('H', 'DOWN')))
-
-    # state = hp.result(state, ('C', 'RIGHT'))
-    # print_state(state)
-
-    # state = hp.result(state, ('C', 'UP'))
-    # print_state(state)
-
-    # state = hp.result(state, ('C', 'LEFT'))
-    # print_state(state)
-
-    # state = hp.result(state, ('C', 'DOWN'))
-    # print_state(state)
-
-    # state = hp.result(state, ('E', 'RIGHT'))
-    # print_state(state)
-
-    # state = hp.result(state, ('E', 'DOWN'))
-    # print_state(state)
-
-    # state = hp.result(state, ('E', 'LEFT'))
-    # print_state(state)
-
-    # state = hp.result(state, ('E', 'UP'))
-    # print_state(state)
-
-    # print hp.tiles(testing_state)
-    # print hp.tiles(initial_state)
