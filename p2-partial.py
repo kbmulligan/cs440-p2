@@ -62,32 +62,26 @@ step_6_state =  (('A', 'B', 'B', 'C'),
                  ('D', 'I', 'H', 'F'),
                  ('D', 'X', 'G', 'J'))
 
-step_24_state = (('A', 'B', 'B', 'C'),              ##### ACTUALLY TAKES 32 STEPS
+step_24_state = (('A', 'B', 'B', 'C'),
                  ('A', 'B', 'B', 'C'),
                  ('X', 'D', 'F', 'I'),
                  ('X', 'D', 'F', 'G'),
                  ('J', 'H', 'E', 'E'))
 
-step_30_state = (('B', 'B', 'C', 'I'),              ##### ACTUALLY TAKES 40 STEPS
+step_30_state = (('B', 'B', 'C', 'I'),
                  ('B', 'B', 'C', 'G'),
                  ('A', 'D', 'F', 'X'),
                  ('A', 'D', 'F', 'X'),
                  ('J', 'H', 'E', 'E'))
 
-step_41_state = (('A', 'X', 'X', 'I'),              #### ACTUALLY TAKES 56 STEPS
+step_41_state = (('A', 'X', 'X', 'I'),
                  ('A', 'B', 'B', 'G'),
                  ('D', 'B', 'B', 'H'),
                  ('D', 'J', 'C', 'F'),
                  ('E', 'E', 'C', 'F'))
 
-step_59_state = (('A', 'C', 'G', 'F'),
-                 ('A', 'C', 'H', 'F'),
-                 ('B', 'B', 'X', 'D'),
-                 ('B', 'B', 'X', 'D'),
-                 ('E', 'E', 'I', 'J'))
-
-step_72_state = (('D', 'A', 'F', 'C'),
-                 ('D', 'A', 'F', 'C'),
+step_59_state = (('A', 'C', 'D', 'F'),
+                 ('A', 'C', 'D', 'F'),
                  ('G', 'H', 'B', 'B'),
                  ('X', 'X', 'B', 'B'),
                  ('E', 'E', 'I', 'J'))
@@ -617,7 +611,7 @@ def direction_of (action):
 def huarong_pass_search(search_type):
     goal_actions = []
 
-    hp = HuarongPass(step_72_state)
+    hp = HuarongPass(step_59_state)
 
     if search_type == 'BFS':
         print "Breadth first search...good choice."
