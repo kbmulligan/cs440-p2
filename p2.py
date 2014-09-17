@@ -1,10 +1,12 @@
 """
 CS440 Assignment 2
 Submitted by K. Brett Mulligan (CSUID: 830189830)
-My code utilizes the search.py code from the Norvig text.
-It searches for solutions to the Huarong Pass puzzle using different search methods.
-To find a solution to the puzzle, just execute the file. 
-The code will print each solution as a list of actions which will lead to the goal state.
+My code utilizes the search.py code from the Norvig AI text.
+It searches for solutions to the Huarong Pass puzzle using different search 
+methods. To find a solution to the puzzle, import the module, and call 
+p2.huarong_pass_search(search_type) where search_type is one of 'BFS', 'DFS', 
+or 'IDS'. The function will return a list of actions which will transform the
+initial state to the goal state.
 """
 
 #################################################
@@ -15,10 +17,10 @@ The code will print each solution as a list of actions which will lead to the go
 # Dr. Asa Ben-Hur
 #################################################
 
-import search, time
+import search
+import time                                                                                 ############## REMOVE BEFORE TURN IN ###################
 
-
-DO_TESTING = True
+DO_TESTING = True                                                                           ############## CHANGE BEFORE TURN IN ###################
 PARTIAL_GOAL = False
 goal_state = None
 
@@ -85,6 +87,12 @@ step_48_state = (('A', 'I', 'G', 'H'),              #### ACTUALLY TAKES 71 STEPS
                  ('D', 'B', 'B', 'F'),
                  ('D', 'B', 'B', 'C'),
                  ('E', 'E', 'J', 'C'))
+
+step_57_state = (('X', 'A', 'H', 'F'),              #### ACTUALLY TAKES 82 STEPS
+                 ('X', 'A', 'G', 'F'),
+                 ('D', 'B', 'B', 'C'),
+                 ('D', 'B', 'B', 'C'),
+                 ('E', 'E', 'I', 'J'))
 
 step_59_state = (('D', 'A', 'H', 'F'),              #### ACTUALLY TAKES 85 STEPS
                  ('D', 'A', 'G', 'F'),
@@ -240,6 +248,7 @@ test_state = {  'A':  (('X', 'X', 'X', 'X'),
 # action is a tuple of length 2
 # action includes, the tile and direction
 # e.g. ('G', 'LEFT') or ('A', 'DOWN')
+# in these comments I use the terms step and action interchangeably
 
 
 
@@ -659,23 +668,23 @@ def huarong_pass_search(search_type):
     hp = HuarongPass(initial_state)
 
     if search_type == 'BFS':
-        print "Breadth first search...good choice. ", time.asctime()
+        # print "Breadth first search...good choice. ", time.asctime()
         goal_actions = search.breadth_first_search(hp).solution()
 
     elif search_type == 'DFS':
-        print "Depth first search...really?", time.asctime()
+        # print "Depth first search...really?", time.asctime()
         goal_actions = search.depth_first_graph_search(hp).solution()
 
     elif search_type == 'IDS':
-        print "Iterative deepening search...great choice!", time.asctime()
+        # print "Iterative deepening search...great choice!", time.asctime()
         goal_actions = search.iterative_deepening_search(hp).solution()
 
     elif search_type == 'BID':
-        print "Bidirectional search...not required...using BFS instead..."
+        # print "Bidirectional search...not required...using BFS instead..."
         goal_actions = huarong_pass_search('BFS')
 
     elif search_type == 'DLS':
-        print "Depth limited search...", time.asctime()
+        # print "Depth limited search...", time.asctime()
         goal_actions = search.depth_limited_search(hp, DEPTH_LIMIT).solution()
 
     else:
@@ -725,7 +734,7 @@ def test_moves(tile):
 def test_bfs_7steps():
     global goal_state
 
-    print "Testing BFS..."
+    print "Testing BFS in 7 steps..."
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
@@ -771,13 +780,13 @@ def test_bfs_7steps():
 
     audit_state(hp_0.state_given(initial_state, acts))
 
-    print "BFS test complete."
+    print "BFS test complete. (7 step)"
 
 
 def test_bfs_4steps():
     global goal_state
 
-    print "Testing BFS...", time.asctime()
+    print "Testing BFS in 4 steps...", time.asctime()
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
@@ -807,44 +816,43 @@ def test_bfs_4steps():
 
     audit_state(hp_0.state_given(initial_state, acts))
 
-    print "BFS test complete.", time.asctime()
+    print "BFS test complete. (4 step)", time.asctime()
 
 def test_bfs():
 
     print "Testing BFS...", time.asctime()
 
+    # test_bfs_7steps()
+
+    # test_bfs_4steps()
+
+
     hp_0  = HuarongPass(initial_state)
-    hp_59 = HuarongPass(step_59_state)
+    hp_57 = HuarongPass(step_57_state)
 
 
     goal_state = None
-    acts_59_81 = search.breadth_first_search(hp_59).solution()
+    acts_57_81 = search.breadth_first_search(hp_57).solution()
 
 
-    print len(acts_59_81), acts_59_81
+    print len(acts_57_81), acts_57_81
 
-    acts = acts_59_81
+    acts = acts_57_81
     print "Total steps: ", len(acts)
 
-    audit_state(hp_0.state_given(step_59_state, acts))
+    audit_state(hp_0.state_given(step_57_state, acts))
 
     print "BFS test complete.", time.asctime()
 
 
 
 def test_dfs():
-    global goal_state
-
     print "Testing DFS...", time.asctime()
 
-
-    hp_0  = HuarongPass(initial_state)                          # setup
-
-    acts = search.depth_first_graph_search(hp_0).solution()     # do test            ### Full DFS test
+    acts = huarong_pass_search('DFS')                                               ### Full DFS test ###
     
-    print "Total steps: ", len(acts)                            # output results
-    audit_state(hp_0.state_given(initial_state, acts))          # check result is valid
-
+    print "Total steps: ", len(acts)                                                # output results
+    audit_state(HuarongPass(initial_state).state_given(initial_state, acts))        # check result is valid
 
     print "DFS test complete.", time.asctime()
 
@@ -926,14 +934,9 @@ if DO_TESTING:
     assert huarong_pass_search('')  == []
 
 
-    
-    # test_bfs_7steps()
+    test_bfs()
 
-    # test_bfs_4steps()
-
-    # test_bfs()
-
-    test_ids()
+    # test_ids()
     
     test_dfs()
     
