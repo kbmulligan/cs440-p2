@@ -15,11 +15,11 @@ The code will print each solution as a list of actions which will lead to the go
 # Dr. Asa Ben-Hur
 #################################################
 
-import search
+import search, time
 
 
 DO_TESTING = True
-PARTIAL_GOAL = True
+PARTIAL_GOAL = False
 goal_state = None
 
 DEPTH_LIMIT = 120
@@ -92,11 +92,41 @@ step_59_state = (('D', 'A', 'H', 'F'),              #### ACTUALLY TAKES 85 STEPS
                  ('B', 'B', 'X', 'C'),
                  ('E', 'E', 'I', 'J'))
 
+step_62_state = (('A', 'X', 'H', 'F'),              
+                 ('A', 'X', 'G', 'F'),
+                 ('D', 'B', 'B', 'C'),
+                 ('D', 'B', 'B', 'C'),
+                 ('E', 'E', 'I', 'J'))
+
+step_64_state = (('A', 'H', 'X', 'F'),              
+                 ('A', 'G', 'X', 'F'),
+                 ('D', 'B', 'B', 'C'),
+                 ('D', 'B', 'B', 'C'),
+                 ('E', 'E', 'I', 'J'))
+
+step_65_state = (('A', 'H', 'F', 'X'),              
+                 ('A', 'G', 'F', 'X'),
+                 ('D', 'B', 'B', 'C'),
+                 ('D', 'B', 'B', 'C'),
+                 ('E', 'E', 'I', 'J'))
+
+step_66_state = (('A', 'H', 'F', 'C'),              
+                 ('A', 'G', 'F', 'C'),
+                 ('D', 'B', 'B', 'X'),
+                 ('D', 'B', 'B', 'X'),
+                 ('E', 'E', 'I', 'J'))
+
 step_72_state = (('D', 'A', 'F', 'C'),              #### ACTUALLY TAKES 104 STEPS
                  ('D', 'A', 'F', 'C'),
                  ('G', 'H', 'B', 'B'),
                  ('X', 'X', 'B', 'B'),
                  ('E', 'E', 'I', 'J'))
+
+step_78_state =  (('D', 'A', 'F', 'C'),
+                  ('D', 'A', 'F', 'C'),
+                  ('E', 'E', 'G', 'H'),
+                  ('X', 'X', 'B', 'B'),
+                  ('I', 'J', 'B', 'B'))
 
 step_81_state =  (('D', 'A', 'F', 'C'),             #### ACTUALLY TAKES 118 STEPS
                   ('D', 'A', 'F', 'C'),
@@ -219,7 +249,6 @@ class HuarongPass(search.Problem):
     result, and goal_test methods. To use this class, instantiate it, 
     and call the appropriate search.py methods on it."""
 
-    # tiles = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J')
     tiles_single = ('G', 'H', 'I', 'J')
     tiles_vtwo = ('A', 'C', 'D', 'F')
     tiles_htwo = ('E')
@@ -349,8 +378,15 @@ class HuarongPass(search.Problem):
         """Return True if the state is a goal. In this case, the 2x2 'B' tile 
         must be centered at the bottom of the grid. This method checks for 
         that condition."""
-        return (state[3][1] == 'B' and state[3][2] == 'B' and state[4][1] == 'B' and state[4][2] == 'B') or (PARTIAL_GOAL and self.states_equal(goal_state, state))
+        is_goal = False
+
+        if goal_state and PARTIAL_GOAL:
+            is_goal = (state[3][1] == 'B' and state[3][2] == 'B' and state[4][1] == 'B' and state[4][2] == 'B') or (PARTIAL_GOAL and self.states_equal(goal_state, state))
+
+        else:
+            is_goal = (state[3][1] == 'B' and state[3][2] == 'B' and state[4][1] == 'B' and state[4][2] == 'B')
         
+        return is_goal
 
 
     # returns True if the given action is impossible for the given state
@@ -623,15 +659,15 @@ def huarong_pass_search(search_type):
     hp = HuarongPass(initial_state)
 
     if search_type == 'BFS':
-        print "Breadth first search...good choice."
+        print "Breadth first search...good choice. ", time.asctime()
         goal_actions = search.breadth_first_search(hp).solution()
 
     elif search_type == 'DFS':
-        print "Depth first search...really?"
+        print "Depth first search...really?", time.asctime()
         goal_actions = search.depth_first_graph_search(hp).solution()
 
     elif search_type == 'IDS':
-        print "Iterative deepening search...great choice!"
+        print "Iterative deepening search...great choice!", time.asctime()
         goal_actions = search.iterative_deepening_search(hp).solution()
 
     elif search_type == 'BID':
@@ -639,7 +675,7 @@ def huarong_pass_search(search_type):
         goal_actions = huarong_pass_search('BFS')
 
     elif search_type == 'DLS':
-        print "Depth limited search..."
+        print "Depth limited search...", time.asctime()
         goal_actions = search.depth_limited_search(hp, DEPTH_LIMIT).solution()
 
     else:
@@ -686,7 +722,7 @@ def test_moves(tile):
     print "Moves test complete."
 
 
-def test_bfs():
+def test_bfs_7steps():
     global goal_state
 
     print "Testing BFS..."
@@ -718,7 +754,7 @@ def test_bfs():
     goal_state = step_72_state
     acts_59_72 = search.breadth_first_search(hp_59).solution()  
 
-    goal_state = step_81_state
+    goal_state = None
     acts_72_81 = search.breadth_first_search(hp_72).solution()
 
 
@@ -738,62 +774,85 @@ def test_bfs():
     print "BFS test complete."
 
 
-def test_dfs():
+def test_bfs_4steps():
     global goal_state
 
-    print "Testing DFS..."
+    print "Testing BFS...", time.asctime()
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
-    hp_30 = HuarongPass(step_30_state)
     hp_41 = HuarongPass(step_41_state)
-    hp_48 = HuarongPass(step_48_state)
     hp_59 = HuarongPass(step_59_state)
-    hp_72 = HuarongPass(step_72_state)
-    hp_81 = HuarongPass(step_81_state)
 
     goal_state = step_24_state
-    acts_0_24 = search.depth_first_graph_search(hp_0).solution()
-
-    goal_state = step_30_state
-    acts_24_30 = search.depth_first_graph_search(hp_24).solution()
+    acts_0_24 = search.breadth_first_search(hp_0).solution()
 
     goal_state = step_41_state
-    acts_30_41 = search.depth_first_graph_search(hp_30).solution()
-
-    goal_state = step_48_state
-    acts_41_48 = search.depth_first_graph_search(hp_41).solution()                 
+    acts_24_41 = search.breadth_first_search(hp_24).solution()               
 
     goal_state = step_59_state
-    acts_48_59 = search.depth_first_graph_search(hp_48).solution()  
+    acts_41_59 = search.breadth_first_search(hp_41).solution()   
 
-    goal_state = step_72_state
-    acts_59_72 = search.depth_first_graph_search(hp_59).solution()  
-
-    goal_state = step_81_state
-    acts_72_81 = search.depth_first_graph_search(hp_72).solution()
+    goal_state = None
+    acts_59_81 = search.breadth_first_search(hp_59).solution()
 
 
     print len(acts_0_24), acts_0_24
-    print len(acts_24_30), acts_24_30
-    print len(acts_30_41), acts_30_41
-    print len(acts_41_48), acts_41_48
-    print len(acts_48_59), acts_48_59
-    print len(acts_59_72), acts_59_72
-    print len(acts_72_81), acts_72_81
+    print len(acts_24_41), acts_24_41
+    print len(acts_41_59), acts_41_59
+    print len(acts_59_81), acts_59_81
 
-    acts = acts_0_24 + acts_24_30 + acts_30_41 + acts_41_48 + acts_48_59 + acts_59_72 + acts_72_81
+    acts = acts_0_24 + acts_24_41 + acts_41_59 + acts_59_81
     print "Total steps: ", len(acts)
 
     audit_state(hp_0.state_given(initial_state, acts))
 
-    print "DFS test complete."
+    print "BFS test complete.", time.asctime()
+
+def test_bfs():
+
+    print "Testing BFS...", time.asctime()
+
+    hp_0  = HuarongPass(initial_state)
+    hp_59 = HuarongPass(step_59_state)
+
+
+    goal_state = None
+    acts_59_81 = search.breadth_first_search(hp_59).solution()
+
+
+    print len(acts_59_81), acts_59_81
+
+    acts = acts_59_81
+    print "Total steps: ", len(acts)
+
+    audit_state(hp_0.state_given(step_59_state, acts))
+
+    print "BFS test complete.", time.asctime()
+
+
+
+def test_dfs():
+    global goal_state
+
+    print "Testing DFS...", time.asctime()
+
+
+    hp_0  = HuarongPass(initial_state)                          # setup
+
+    acts = search.depth_first_graph_search(hp_0).solution()     # do test            ### Full DFS test
+    
+    print "Total steps: ", len(acts)                            # output results
+    audit_state(hp_0.state_given(initial_state, acts))          # check result is valid
+
+
+    print "DFS test complete.", time.asctime()
 
 
 def test_ids():
     global goal_state
 
-    print "Testing IDS..."
+    print "Testing IDS...", time.asctime()
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
@@ -804,42 +863,44 @@ def test_ids():
     hp_72 = HuarongPass(step_72_state)
     hp_81 = HuarongPass(step_81_state)
 
-    goal_state = step_24_state
-    acts_0_24 = search.iterative_deepening_search(hp_0).solution()
+    # goal_state = step_24_state
+    # acts_0_24 = search.iterative_deepening_search(hp_0).solution()
 
-    goal_state = step_30_state
-    acts_24_30 = search.iterative_deepening_search(hp_24).solution()
+    # goal_state = step_30_state
+    # acts_24_30 = search.iterative_deepening_search(hp_24).solution()
 
-    goal_state = step_41_state
-    acts_30_41 = search.iterative_deepening_search(hp_30).solution()
+    # goal_state = step_41_state
+    # acts_30_41 = search.iterative_deepening_search(hp_30).solution()
 
-    goal_state = step_48_state
-    acts_41_48 = search.iterative_deepening_search(hp_41).solution()                 
+    # goal_state = step_48_state
+    # acts_41_48 = search.iterative_deepening_search(hp_41).solution()                 
 
-    goal_state = step_59_state
-    acts_48_59 = search.iterative_deepening_search(hp_48).solution()  
+    # goal_state = step_59_state
+    # acts_48_59 = search.iterative_deepening_search(hp_48).solution()  
 
-    goal_state = step_72_state
-    acts_59_72 = search.iterative_deepening_search(hp_59).solution()  
+    # goal_state = step_72_state
+    # acts_59_72 = search.iterative_deepening_search(hp_59).solution()  
 
-    goal_state = step_81_state
+    goal_state = None
     acts_72_81 = search.iterative_deepening_search(hp_72).solution()
 
 
-    print len(acts_0_24), acts_0_24
-    print len(acts_24_30), acts_24_30
-    print len(acts_30_41), acts_30_41
-    print len(acts_41_48), acts_41_48
-    print len(acts_48_59), acts_48_59
-    print len(acts_59_72), acts_59_72
-    print len(acts_72_81), acts_72_81
+    # print len(acts_0_24), acts_0_24
+    # print len(acts_24_30), acts_24_30
+    # print len(acts_30_41), acts_30_41
+    # print len(acts_41_48), acts_41_48
+    # print len(acts_48_59), acts_48_59
+    # print len(acts_59_72), acts_59_72
+    # print len(acts_72_81), acts_72_81
 
-    acts = acts_0_24 + acts_24_30 + acts_30_41 + acts_41_48 + acts_48_59 + acts_59_72 + acts_72_81
-    print "Total steps: ", len(acts)
+    # acts = acts_0_24 + acts_24_30 + acts_30_41 + acts_41_48 + acts_48_59 + acts_59_72 + acts_72_81
+    # print "Total steps: ", len(acts)
 
-    audit_state(hp_0.state_given(initial_state, acts))
+    # audit_state(hp_0.state_given(initial_state, acts))
 
-    print "IDS test complete."
+    audit_state(hp_0.state_given(step_72_state, acts_72_81))
+
+    print "IDS test complete.", time.asctime()
 
 
 ######### SETUP #######################
@@ -850,7 +911,7 @@ def test_ids():
 
 if DO_TESTING:
 
-    print "Testing..."
+    print "Testing...", time.asctime()
 
     hp = HuarongPass(initial_state)
     
@@ -866,11 +927,17 @@ if DO_TESTING:
 
 
     
-    test_bfs()
-    
-    # test_dfs()
-    
+    # test_bfs_7steps()
+
+    # test_bfs_4steps()
+
+    # test_bfs()
+
     test_ids()
+    
+    test_dfs()
+    
+    
     
 
     # bfs_actions = huarong_pass_search('BFS')
@@ -888,6 +955,6 @@ if DO_TESTING:
 
 
     print ''
-    print "All tests passed!"
+    print "All tests passed!", time.asctime()
     print ''
 
