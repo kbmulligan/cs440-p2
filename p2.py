@@ -1,12 +1,14 @@
 """
 CS440 Assignment 2
-Submitted by K. Brett Mulligan (CSUID: 830189830)
-My code utilizes the search.py code from the Norvig AI text.
-It searches for solutions to the Huarong Pass puzzle using different search 
-methods. To find a solution to the puzzle, import the module, and call 
+Submitted by K. Brett Mulligan (eID: kbmulli) (CSUID: 830189830)
+My code searches for solutions to the Huarong Pass puzzle using different 
+search methods. It utilizes the search.py code from the Norvig AI text.
+To find a solution to the puzzle, import the module, and call 
 p2.huarong_pass_search(search_type) where search_type is one of 'BFS', 'DFS', 
-or 'IDS'. The function will return a list of actions which will transform the
-initial state to the goal state.
+or 'IDS'.  I recommend only using DFS since the time complexity of both BFS and
+IDS is too large. Alternatively, call the search.py methods directly on an 
+instance of HuarongPass. The function will return a list of actions which will
+transform the initial state to the goal state.
 """
 
 #################################################
@@ -18,9 +20,8 @@ initial state to the goal state.
 #################################################
 
 import search
-import time                                                                                 ############## REMOVE BEFORE TURN IN ###################
 
-DO_TESTING = True                                                                           ############## CHANGE BEFORE TURN IN ###################
+DO_TESTING = False                                                                           
 PARTIAL_GOAL = False
 goal_state = None
 
@@ -254,7 +255,7 @@ test_state = {  'A':  (('X', 'X', 'X', 'X'),
 
 ######### MAIN CLASS ##################
 class HuarongPass(search.Problem):
-    """This class extendes search.Problem and implements the actions, 
+    """This class extends search.Problem and implements the actions, 
     result, and goal_test methods. To use this class, instantiate it, 
     and call the appropriate search.py methods on it."""
 
@@ -266,6 +267,12 @@ class HuarongPass(search.Problem):
     directions = ('UP', 'DOWN', 'LEFT', 'RIGHT')
 
     all_possible_actions = []
+
+    def __init__(self, initial, goal=None):
+        """The constructor specifies the initial state, and possibly a goal
+        state, if there is a unique goal.  Your subclass's constructor can add
+        other arguments."""
+        self.initial = initial; self.goal = goal
 
     def actions(self, state):
         """Return the actions that can be executed in the given
@@ -552,6 +559,9 @@ class HuarongPass(search.Problem):
                     tiles.append(col)
 
         tiles.remove(BLANK)
+
+        # tiles = list(self.tiles_four) + list(self.tiles_htwo) + list(self.tiles_vtwo) + list(self.tiles_single)     ### this didn't work
+
         return tuple(tiles)
 
     # given a state and a tile, returns the top left coords of the tile, row first
@@ -786,7 +796,7 @@ def test_bfs_7steps():
 def test_bfs_4steps():
     global goal_state
 
-    print "Testing BFS in 4 steps...", time.asctime()
+    print "Testing BFS in 4 steps..."
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
@@ -816,11 +826,11 @@ def test_bfs_4steps():
 
     audit_state(hp_0.state_given(initial_state, acts))
 
-    print "BFS test complete. (4 step)", time.asctime()
+    print "BFS test complete. (4 step)"
 
 def test_bfs():
 
-    print "Testing BFS...", time.asctime()
+    print "Testing BFS..."
 
     # test_bfs_7steps()
 
@@ -842,25 +852,26 @@ def test_bfs():
 
     audit_state(hp_0.state_given(step_57_state, acts))
 
-    print "BFS test complete.", time.asctime()
+    print "BFS test complete."
 
 
 
 def test_dfs():
-    print "Testing DFS...", time.asctime()
+    print "Testing DFS..."
 
     acts = huarong_pass_search('DFS')                                               ### Full DFS test ###
     
+    print acts
     print "Total steps: ", len(acts)                                                # output results
     audit_state(HuarongPass(initial_state).state_given(initial_state, acts))        # check result is valid
 
-    print "DFS test complete.", time.asctime()
+    print "DFS test complete."
 
 
 def test_ids():
     global goal_state
 
-    print "Testing IDS...", time.asctime()
+    print "Testing IDS..."
 
     hp_0  = HuarongPass(initial_state)
     hp_24 = HuarongPass(step_24_state)
@@ -908,7 +919,7 @@ def test_ids():
 
     audit_state(hp_0.state_given(step_72_state, acts_72_81))
 
-    print "IDS test complete.", time.asctime()
+    print "IDS test complete."
 
 
 ######### SETUP #######################
@@ -919,7 +930,7 @@ def test_ids():
 
 if DO_TESTING:
 
-    print "Testing...", time.asctime()
+    print "Testing..."
 
     hp = HuarongPass(initial_state)
     
@@ -934,30 +945,29 @@ if DO_TESTING:
     assert huarong_pass_search('')  == []
 
 
-    test_bfs()
+    # test_bfs()
 
     # test_ids()
     
     test_dfs()
-    
-    
+
+
+    # dls_actions = huarong_pass_search('DLS')
+    # print len(dls_actions), dls_actions
     
 
     # bfs_actions = huarong_pass_search('BFS')
-    # print len(bfs_actions)
-    # print bfs_actions
+    # print len(bfs_actions), bfs_actions
     
     # ids_actions = huarong_pass_search('IDS')
-    # print len(ids_actions)
-    # print ids_actions
+    # print len(ids_actions), ids_actions
 
     # dfs_actions = huarong_pass_search('DFS')
-    # print len(dfs_actions)
-    # print dfs_actions
+    # print len(dfs_actions), dfs_actions
     
 
 
     print ''
-    print "All tests passed!", time.asctime()
+    print "All tests passed!"
     print ''
 
