@@ -21,7 +21,7 @@ transform the initial state to the goal state.
 
 import search
 
-DO_TESTING = True                                                                      
+DO_TESTING = False                                                                      
 PARTIAL_GOAL = False
 goal_state = None
 
